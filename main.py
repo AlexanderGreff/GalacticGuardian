@@ -443,15 +443,25 @@ def update():
     #         # Create a new Game object, without any players
     #         game = Game()
 
+MAX_IMAGE_Y=1044
+PIXEL_SCROLL=5
 dy1=0
+dy2=MAX_IMAGE_Y
 
 def draw():
     # game.draw()
-    global dy1
+    global dy1, dy2
+    
     menu_image = "menu" + str(num_players - 1)
-    screen.blit("bg2.png", (0,dy1))
+    screen.blit("bg1.png", (0,dy1))
+    screen.blit("bg2.png", (0,dy2))
     # screen.blit(menu_image, (0,dy1))
-    dy1=dy1-2
+    dy1=dy1-PIXEL_SCROLL
+    dy2=dy2-PIXEL_SCROLL
+    if dy1<=-MAX_IMAGE_Y:
+        dy1=MAX_IMAGE_Y
+    if dy2<=-MAX_IMAGE_Y:
+        dy2=MAX_IMAGE_Y
     
 
 # The mixer allows us to play sounds and music
