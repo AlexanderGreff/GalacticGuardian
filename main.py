@@ -23,7 +23,7 @@ WIDTH = 720
 HEIGHT = 720
 TITLE = "Boing!"
 
-# HALF_WIDTH = WIDTH // 2
+HALF_WIDTH = WIDTH // 2
 # HALF_HEIGHT = HEIGHT // 2
 
 # PLAYER_SPEED = 6
@@ -392,10 +392,10 @@ num_players = 1
 # Is space currently being held down?
 space_down = False
 
-# Pygame Zero calls the update and draw functions each frame
 
-def update():
-    global state, game, num_players, space_down
+
+# def update():
+#     global state, game, num_players, space_down
     # # Work out whether the space key has just been pressed - i.e. in the previous frame it wasn't down,
     # # and in this frame it is.
     # space_pressed = False
@@ -454,8 +454,8 @@ class Background(object):
         self.dy2 = -self.MAX_IMAGE_Y
 
     def draw(self):
-        screen.blit("bg1.png", (0, self.dy1))
-        screen.blit("bg2.png", (0, self.dy2))
+        screen.blit("bg1", (0, self.dy1))
+        screen.blit("bg2", (0, self.dy2))
         self.scroll()
 
     def scroll(self):    
@@ -469,9 +469,46 @@ class Background(object):
 
 scrollingbackground=Background()
 
+class Spaceship(Actor):
+    """
+    handles logic for scrolling background
+    """
+    def __init__(self):
+        super().__init__("spaceshipsmall")
+        shipheight=self.height
+        self.x = HALF_WIDTH
+        self.y = HEIGHT - shipheight
+        self.shipspeed=5
+
+    def controls(self):
+        movex = 0
+        movey = 0
+        if keyboard.s or keyboard.down:
+            movey = self.shipspeed
+        elif keyboard.w or keyboard.up:
+            movey = -self.shipspeed
+        
+        if keyboard.a or keyboard.left:
+            movex = -self.shipspeed
+        elif keyboard.d or keyboard.right:
+            movex = self.shipspeed
+        return movex,movey
+    
+    def update(self):
+        movex,movey=self.controls()
+        self.x+=movex
+        self.y+=movey
+
+spaceship=Spaceship()
+
+# Pygame Zero calls the update and draw functions each frame
+
+def update():
+    spaceship.update()
+
 def draw():
     scrollingbackground.draw()
-    
+    spaceship.draw()
 
 # The mixer allows us to play sounds and music
 try:
