@@ -392,7 +392,6 @@ num_players = 1
 # Is space currently being held down?
 space_down = False
 
-
 # Pygame Zero calls the update and draw functions each frame
 
 def update():
@@ -442,26 +441,36 @@ def update():
 
     #         # Create a new Game object, without any players
     #         game = Game()
+class Background(object):
+    """
+    handles logic for scrolling background
+    """
+    def __init__(self):
+        """
+        constructor
+        """
+        self.MAX_IMAGE_Y=1044
+        self.PIXEL_SCROLL=5
+        self.dy1=0
+        self.dy2=self.MAX_IMAGE_Y
 
-MAX_IMAGE_Y=1044
-PIXEL_SCROLL=5
-dy1=0
-dy2=MAX_IMAGE_Y
+    def draw(self):
+        screen.blit("bg1.png", (0,self.dy1))
+        screen.blit("bg2.png", (0,self.dy2))
+        self.scroll()
+
+    def scroll(self):    
+        self.dy1=self.dy1-self.PIXEL_SCROLL
+        self.dy2=self.dy2-self.PIXEL_SCROLL
+        if self.dy1<=-self.MAX_IMAGE_Y:
+            self.dy1=self.MAX_IMAGE_Y
+        if self.dy2<=-self.MAX_IMAGE_Y:
+            self.dy2=self.MAX_IMAGE_Y
+
+scrollingbackground=Background()
 
 def draw():
-    # game.draw()
-    global dy1, dy2
-    
-    menu_image = "menu" + str(num_players - 1)
-    screen.blit("bg1.png", (0,dy1))
-    screen.blit("bg2.png", (0,dy2))
-    # screen.blit(menu_image, (0,dy1))
-    dy1=dy1-PIXEL_SCROLL
-    dy2=dy2-PIXEL_SCROLL
-    if dy1<=-MAX_IMAGE_Y:
-        dy1=MAX_IMAGE_Y
-    if dy2<=-MAX_IMAGE_Y:
-        dy2=MAX_IMAGE_Y
+    scrollingbackground.draw()
     
 
 # The mixer allows us to play sounds and music
