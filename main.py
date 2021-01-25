@@ -396,7 +396,6 @@ space_down = False
 
 def update():
     global state, game, num_players, space_down
-    print ("a")
     # # Work out whether the space key has just been pressed - i.e. in the previous frame it wasn't down,
     # # and in this frame it is.
     # space_pressed = False
@@ -449,23 +448,24 @@ class Background(object):
         """
         constructor
         """
-        self.MAX_IMAGE_Y=1044
-        self.PIXEL_SCROLL=5
-        self.dy1=0
-        self.dy2=self.MAX_IMAGE_Y
+        self.MAX_IMAGE_Y = 1044
+        self.PIXEL_SCROLL = 5
+        self.dy1 = 0
+        self.dy2 = -self.MAX_IMAGE_Y
 
     def draw(self):
-        screen.blit("bg1.png", (0,self.dy1))
-        screen.blit("bg2.png", (0,self.dy2))
+        screen.blit("bg1.png", (0, self.dy1))
+        screen.blit("bg2.png", (0, self.dy2))
         self.scroll()
 
     def scroll(self):    
-        self.dy1=self.dy1-self.PIXEL_SCROLL
-        self.dy2=self.dy2-self.PIXEL_SCROLL
-        if self.dy1<=-self.MAX_IMAGE_Y:
-            self.dy1=self.MAX_IMAGE_Y
-        if self.dy2<=-self.MAX_IMAGE_Y:
-            self.dy2=self.MAX_IMAGE_Y
+        self.dy1 = self.dy1 + self.PIXEL_SCROLL
+        self.dy2 = self.dy2 + self.PIXEL_SCROLL
+        
+        if self.dy1 >= self.MAX_IMAGE_Y:
+            self.dy1 = -self.MAX_IMAGE_Y
+        if self.dy2 >= self.MAX_IMAGE_Y:
+            self.dy2 = -self.MAX_IMAGE_Y
 
 scrollingbackground=Background()
 
