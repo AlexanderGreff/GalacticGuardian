@@ -83,6 +83,7 @@ class Spaceship(Actor):
         self.x = HALF_WIDTH
         self.y = HEIGHT - shipheight
         self.shipspeed=5
+        self.halfheight=self.height/2
 
     def controls(self):
         movex = 0
@@ -100,9 +101,12 @@ class Spaceship(Actor):
     
     def update(self):
         movex,movey=self.controls()
-        self.x+=movex
-        self.y+=movey
-
+        newx=self.x+movex
+        newy=self.y+movey
+        if newx>=0 and newx<=WIDTH:         
+            self.x=newx
+        if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
+            self.y=newy
 
 spaceship=Spaceship()
 
