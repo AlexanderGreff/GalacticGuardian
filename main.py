@@ -60,9 +60,8 @@ class Background(object):
     def draw(self):
         screen.blit("bg1", (0, self.dy1))
         screen.blit("bg2", (0, self.dy2))
-        self.scroll()
 
-    def scroll(self):    
+    def update(self):    
         self.dy1 = self.dy1 + self.PIXEL_SCROLL
         self.dy2 = self.dy2 + self.PIXEL_SCROLL
         
@@ -70,6 +69,7 @@ class Background(object):
             self.dy1 = -self.MAX_IMAGE_Y
         if self.dy2 >= self.MAX_IMAGE_Y:
             self.dy2 = -self.MAX_IMAGE_Y
+
 
 scrollingbackground=Background()
 
@@ -106,11 +106,15 @@ class Spaceship(Actor):
 
 spaceship=Spaceship()
 
+#Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
 
+#we do all of the necessary calcuations in here
 def update():
     spaceship.update()
+    scrollingbackground.update()
 
+#here we redraw everything     
 def draw():
     scrollingbackground.draw()
     spaceship.draw()
