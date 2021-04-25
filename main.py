@@ -105,6 +105,7 @@ class EnemyShip(Actor):
         return self.distance_to(item) < minDist
 
     def destroyed(self):
+        game.scoreBoard.incScore()
         game.enemies.remove(self)
         sounds.explosion.play()
 
@@ -206,6 +207,7 @@ class Spaceship(Actor):
         sounds.spaceshipexplosion.play()
         self.isDead=True
         self.isDeadCount=game.count
+        game.gameOver()
 
     def draw(self):
         if not self.isDead:
@@ -263,6 +265,36 @@ class Enemies(Container):
                 isHit=True
         return isHit
 
+class ScoreBoard(object):
+    """
+    handles all objects in the game
+    """
+    def __init__(self, life=3):
+        self.lineY= HEIGHT//20
+        self.scoreX = (5*WIDTH)//6
+        self.lifeX = (1*WIDTH)//4
+        self.score=0
+        self.life=life
+
+    def drawMenu(self):
+        screen.draw.text(str(self.score) , center=(self.scoreX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=60)
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.drawMenu()
+
+    def incScore(self):
+        self.score+=1
+
+    def died(self):
+        if self.life > 1:
+            self.life-=1
+        else:
+            self.life=0
+            game.gameOver()
+
 
 class Game(object):
     """
@@ -273,27 +305,33 @@ class Game(object):
         self.spaceship=Spaceship()
         self.enemies=Enemies()
         self.bullets=Bullets()
+        self.scoreBoard=ScoreBoard()
         self.count=0
-
-    def draw(self):
-        self.background.draw()
-        self.spaceship.draw()
-        self.enemies.draw()
-        self.bullets.draw()
 
     def update(self):
         self.background.update()
         self.spaceship.update()
         self.enemies.update()
         self.bullets.update()
+        self.scoreBoard.update()
         self.addEnemies()
         self.count+=1
         
+    def draw(self):
+        self.background.draw()
+        self.spaceship.draw()
+        self.enemies.draw()
+        self.bullets.draw()
+        self.scoreBoard.draw()
+
     def addEnemies(self):
         if self.count % 100 == 0:
             self.enemies.add(EnemyShip())
 
-#game = Game()
+    def gameOver(self):
+        global mode
+        mode = Mode.GameOver
+
 class GameOver(object):
     """
     handles all objects in the game
@@ -302,26 +340,29 @@ class GameOver(object):
         self.background=Background(0)
         #self.count=0
 
-    def draw(self):
-        self.background.draw()
-        self.drawMenu()
-
     def drawMenu(self):
         screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//6), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
         screen.draw.text("GAME OVER" , center=(WIDTH//2, HEIGHT//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
         screen.draw.text("press SPACE to start" , center=(WIDTH//2, (3*HEIGHT)//4), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        game.scoreBoard.draw()
 
-    def update(self):
-        self.controls()
-        self.background.update()
-        #self.count+=1
-        
     def controls(self):
         global mode, game
         if keyboard.space:
             mode = Mode.Play
             game = Game() 
 
+    def update(self):
+        self.controls()
+        self.background.update()
+        #self.count+=1
+        
+    def draw(self):
+        self.background.draw()
+        self.drawMenu()
+
+
+game = Game() 
 gameOver = GameOver()
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
