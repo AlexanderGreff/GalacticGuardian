@@ -31,7 +31,7 @@ class Mode(Enum):
     Play = 2
 
 mode = Mode.GameOver
-game=None
+players=None
 
 
 # PLAYER_SPEED = 6
@@ -212,7 +212,7 @@ class Spaceship(Actor):
         sounds.spaceshipexplosion.play()
         self.isDead=True
         self.isDeadCount=self.game.count
-        self.game.scoreBoard.died()
+        self.game.died()
 
 
     def draw(self):
@@ -277,24 +277,35 @@ class ScoreBoard(object):
     handles all objects in the game
     """
     def __init__(self, game, life=3):
-        self.lineY= HEIGHT//20
+        self.lineY1= (1*HEIGHT)//20
+        self.lineY2= (2*HEIGHT)//20
         self.scoreX = (9.75*WIDTH)//12
         self.lifeX = (2*WIDTH)//4
+        self.playerX = (1*WIDTH)//8
         self.score=0
         self.life=life
         self.game = game
 
-    def drawMenu(self):
+    def drawBoard(self,player,alwaysLine1):
+        if alwaysLine1:
+            lineY=self.lineY1
+        elif player==0:
+            lineY=self.lineY1
+        else:
+            lineY=self.lineY2
+        
         scoreStr="Score: {0:04d}".format(self.score)
         lifeStr="Life: {0}".format(self.life)
-        screen.draw.text(scoreStr, center=(self.scoreX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
-        screen.draw.text(lifeStr, center=(self.lifeX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
+        playerStr="Player: {0}".format(player+1)
+        screen.draw.text(scoreStr, center=(self.scoreX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
+        screen.draw.text(lifeStr, center=(self.lifeX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
+        screen.draw.text(playerStr, center=(self.playerX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
 
     def update(self):
         pass
 
     def draw(self):
-        self.drawMenu()
+        self.drawBoard(self.game.playerNb,True)
 
     def incScore(self,value=1):
         self.score+=value
@@ -305,20 +316,22 @@ class ScoreBoard(object):
             self.life-=1
         else:
             self.life=0
-            self.game.gameOver()
+            players.gameOver()
 
 
 class Game(object):
     """
     handles all objects in the game
     """
-    def __init__(self):
+    def __init__(self,players,playerNb):
         self.background=Background(self)
         self.spaceship=Spaceship(self)
         self.enemies=Enemies(self)
         self.bullets=Bullets(self)
         self.scoreBoard=ScoreBoard(self)
         self.count=0
+        self.playerNb=playerNb
+        self.players=players
 
     def update(self):
         self.background.update()
@@ -344,6 +357,10 @@ class Game(object):
         global mode
         mode = Mode.GameOver
 
+    def died(self):
+        self.scoreBoard.died()
+        self.players.died()
+        
 class GameOver(object):
     """
     handles all objects in the game
@@ -355,14 +372,18 @@ class GameOver(object):
     def drawMenu(self):
         screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
         screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
-        screen.draw.text("press SPACE to start" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
-        game.scoreBoard.draw()
+        screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        if players is not None:
+            players.drawBoard()
 
     def controls(self):
-        global mode, game
-        if keyboard.space:
+        global mode, players
+        if keyboard.K_1:
             mode = Mode.Play
-            game = Game() 
+            players = Players(1) 
+        elif keyboard.K_2:
+            mode = Mode.Play
+            players = Players(2)
 
     def update(self):
         self.controls()
@@ -373,9 +394,46 @@ class GameOver(object):
         self.background.draw()
         self.drawMenu()
 
+class Players(object):
+    """
+    handles all objects in the game
+    """
+    def __init__(self,numberPlayers):
+        self.numberPlayers=numberPlayers
+        self.currentPlayer=0
+        self.players=[]
+        for i in range(numberPlayers):
+            self.players.append(Game(self,i))
+        
+        #self.count=0
+    def getPlayer(self):
+        return self.players[self.currentPlayer]
 
-game = Game() 
+    def update(self):
+        self.getPlayer().update()
+
+    def drawBoard(self):
+        for i in range(self.numberPlayers):
+            self.players[i].scoreBoard.drawBoard(i,False)
+
+    def draw(self):
+       self.getPlayer().draw()
+
+    def nextPlayer(self):
+        self.currentPlayer+=1
+        if self.currentPlayer == self.numberPlayers:
+            self.currentPlayer=0
+    
+    def died(self):
+        self.nextPlayer()
+
+    def gameOver(self):
+        global mode
+        if self.currentPlayer == (self.numberPlayers-1):
+            mode = Mode.GameOver
+
 gameOver = GameOver()
+
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
 
@@ -385,7 +443,7 @@ gameOver = GameOver()
 #we do all of the necessary calcuations in here
 def update():
     if mode == Mode.Play:
-        game.update()
+        players.update()
     else:
         gameOver.update()
 
@@ -393,7 +451,7 @@ def update():
 #here we redraw everything     
 def draw():
     if mode == Mode.Play:
-        game.draw()
+        players.draw()
     else:
         gameOver.draw()
 
