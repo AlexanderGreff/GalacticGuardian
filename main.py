@@ -120,7 +120,7 @@ class Bullet(Actor):
         self.y = y
         self.speed=5
         self.minDistance = self.width // 2
-        print(self.minDistance)
+        #print(self.minDistance)
 
     def controls(self):
         movex = 0
@@ -223,7 +223,7 @@ class Container(object):
 
     def update(self):
         for item in self.dead:
-            del self.all[id(item)]
+            self.all.pop(id(item), None)
         if len(self.dead)>0:
             self.dead.clear()
         for element in self.all.values():
