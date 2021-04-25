@@ -99,6 +99,34 @@ class EnemyShip(Actor):
             self.y=newy
 
 enemyShip = EnemyShip()
+
+class Bullet(Actor):
+    """
+    handles logic for scrolling background
+    """
+    def __init__(self):
+        super().__init__("bullet15")
+        shipheight=self.height
+        self.x = HALF_WIDTH
+        self.y =  HALF_HEIGHT+70
+        self.shipspeed=5
+        self.halfheight=self.height/2
+
+    def controls(self):
+        movex = 0
+        movey = 0
+        return movex,movey
+    
+    def update(self):
+        movex,movey=self.controls()
+        newx=self.x+movex
+        newy=self.y+movey
+        if newx>=0 and newx<=WIDTH:         
+            self.x=newx
+        if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
+            self.y=newy
+
+bullet = Bullet()
 class Spaceship(Actor):
     """
     handles logic for scrolling background
@@ -144,12 +172,14 @@ def update():
     scrollingbackground.update()
     spaceship.update()
     enemyShip.update()
+    bullet.update()
 
 #here we redraw everything     
 def draw():
     scrollingbackground.draw()
     spaceship.draw()
-    enemyShip.draw()
+    enemyShip.draw()    
+    bullet.draw()
 
 # The mixer allows us to play sounds and music
 try:
