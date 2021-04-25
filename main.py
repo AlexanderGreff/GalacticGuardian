@@ -20,36 +20,19 @@ if pgzero_version < [1,2]:
     print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
     sys.exit()
 
+class Mode(Enum):
+    GameOver = 1
+    Play = 2
+
 # Set up constants
 WIDTH = 720
 HEIGHT = 720
 TITLE = "Galactic Guardian"
 
-
-class Mode(Enum):
-    GameOver = 1
-    Play = 2
-
+#globals
 mode = Mode.GameOver
 players=None
-
-
-# PLAYER_SPEED = 6
-# MAX_AI_SPEED = 6
-
-# def normalised(x, y):
-#     # Return a unit vector
-#     # Get length of vector (x,y) - math.hypot uses Pythagoras' theorem to get length of hypotenuse
-#     # of right-angle triangle with sides of length x and y
-#     # todo note on safety
-#     length = math.hypot(x, y)
-#     return (x / length, y / length)
-
-def sign(x):
-    # Returns -1 or 1 depending on whether number is positive or negative
-    return -1 if x < 0 else 1
-
-
+gameOver=None
 class Background(object):
     """
     handles logic for scrolling background
@@ -78,7 +61,7 @@ class Background(object):
 
 class EnemyShip(Actor):
     """
-    handles logic for scrolling background
+    handles logic for an enemy ship
     """
     def __init__(self,game):
         if random.randrange(1,3) == 1:
@@ -125,7 +108,7 @@ class EnemyShip(Actor):
 
 class Bullet(Actor):
     """
-    handles logic for scrolling background
+    handles logic for a bullet
     """
     def __init__(self,game,x,y):
         super().__init__("bullet15")
@@ -134,7 +117,6 @@ class Bullet(Actor):
         self.speed=5
         self.minDistance = self.width // 2
         self.game = game
-        #print(self.minDistance)
 
     def controls(self):
         movex = 0
@@ -156,7 +138,7 @@ class Bullet(Actor):
 
 class Spaceship(Actor):
     """
-    handles logic for scrolling background
+    handles logic for the player spaceship
     """
     def __init__(self,game):
         super().__init__("spaceshipsmall")
@@ -254,14 +236,14 @@ class Container(object):
 
 class Bullets(Container):
     """
-    handles all bullets in the game
+    handles all bullets of a player
     """
     def __init__(self,game):
         super().__init__(game)
 
 class Enemies(Container):
     """
-    handles all enemies in the game
+    handles all enemies of a player
     """
     def __init__(self,game):
         super().__init__(game)
@@ -277,7 +259,7 @@ class Enemies(Container):
 
 class ScoreBoard(object):
     """
-    handles all objects in the game
+    handles the scoreboard of a player
     """
     def __init__(self, game, life=3):
         self.lineY1= (1*HEIGHT)//20
@@ -327,7 +309,7 @@ class ScoreBoard(object):
 
 class Game(object):
     """
-    handles all objects in the game
+    handles all states for the Game of 1 player
     """
     def __init__(self,players,playerNb):
         self.background=Background()
@@ -367,23 +349,24 @@ class Game(object):
         self.scoreBoard.died()
         self.players.died()
 
-    def quit(self):
+    @staticmethod
+    def quit():
          pygame.display.quit()
          pygame.quit()
          sys.exit()
         
 class GameOver(object):
     """
-    handles all objects in the game
+    handles Game Over state
     """
     def __init__(self):
         self.background=Background(0)
-        #self.count=0
 
     def drawMenu(self):
         screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
         screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
         screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        screen.draw.text(" q to quit" , center=(WIDTH//2, (7.35*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
         if players is not None:
             players.drawBoard()
 
@@ -395,11 +378,12 @@ class GameOver(object):
         elif keyboard.K_2:
             mode = Mode.Play
             players = Players(2)
+        elif keyboard.q:
+                Game.quit()
 
     def update(self):
         self.controls()
         self.background.update()
-        #self.count+=1
         
     def draw(self):
         self.background.draw()
@@ -407,7 +391,7 @@ class GameOver(object):
 
 class Players(object):
     """
-    handles all objects in the game
+    handles all players in the game
     """
     def __init__(self,numberPlayers):
         self.numberPlayers=numberPlayers
@@ -461,19 +445,16 @@ class Players(object):
             self.countPlayerChange=0
         return changing
 
-
     def gameOver(self):
         global mode
         if self.currentPlayer == (self.numberPlayers-1):
             mode = Mode.GameOver
 
+#initalize global
 gameOver = GameOver()
 
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
-
-
-# if player.status == 1: screen.draw.text("GAME OVER" , center=(300, 434), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=40)
 
 #we do all of the necessary calcuations in here
 def update():
@@ -481,7 +462,6 @@ def update():
         players.update()
     else:
         gameOver.update()
-
 
 #here we redraw everything     
 def draw():
@@ -497,7 +477,6 @@ try:
 
     music.play("theme")
     music.set_volume(0.3)
-
 except:
     # If an error occurs (e.g. no sound device), just ignore it
     pass
