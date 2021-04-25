@@ -73,7 +73,10 @@ class EnemyShip(Actor):
     handles logic for scrolling background
     """
     def __init__(self):
-        super().__init__("enemyship1")
+        if random.randrange(1,3) == 1:
+            super().__init__("enemyship1")  
+        else:
+            super().__init__("enemyblue2")  
         self.x = random.randrange(0, WIDTH)
         self.y =  20
         self.shipspeed=5
@@ -161,6 +164,7 @@ class Spaceship(Actor):
             movey = self.shipspeed
         elif keyboard.w or keyboard.up:
             movey = -self.shipspeed
+            sounds.engine.play()
 
         if keyboard.space:
             if self.countFire % 10 == 0:
@@ -188,6 +192,7 @@ class Spaceship(Actor):
 
     def fire(self):
         game.bullets.add(Bullet(self.x, self.y-self.halfheight))
+        sounds.laser0.play()
 
     def destroyed(self):
         sounds.spaceshipexplosion.play()
