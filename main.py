@@ -169,21 +169,22 @@ class Spaceship(Actor):
     def controls(self):
         movex = 0
         movey = 0
-        if keyboard.s or keyboard.down:
-            movey = self.shipspeed
-        elif keyboard.w or keyboard.up:
-            movey = -self.shipspeed
-            sounds.engine.play()
+        if not self.isDead:
+            if keyboard.s or keyboard.down:
+                movey = self.shipspeed
+            elif keyboard.w or keyboard.up:
+                movey = -self.shipspeed
+                sounds.engineshort.play()
 
-        if keyboard.space:
-            if self.countFire % 10 == 0:
-                self.fire()
-            self.countFire+=1
+            if keyboard.space:
+                if self.countFire % 10 == 0:
+                    self.fire()
+                self.countFire+=1
 
-        if keyboard.a or keyboard.left:
-            movex = -self.shipspeed
-        elif keyboard.d or keyboard.right:
-            movex = self.shipspeed
+            if keyboard.a or keyboard.left:
+                movex = -self.shipspeed
+            elif keyboard.d or keyboard.right:
+                movex = self.shipspeed
         return movex,movey
     
     def update(self):
