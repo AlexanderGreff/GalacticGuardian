@@ -54,7 +54,7 @@ class Background(object):
     """
     handles logic for scrolling background
     """
-    def __init__(self, game, scrollSpeed=5):
+    def __init__(self, scrollSpeed=5):
         """
         constructor
         """
@@ -62,7 +62,6 @@ class Background(object):
         self.PIXEL_SCROLL = scrollSpeed
         self.dy1 = 0
         self.dy2 = -self.MAX_IMAGE_Y
-        self.game = game
 
     def draw(self):
         screen.blit("bg1", (0, self.dy1))
@@ -298,7 +297,8 @@ class ScoreBoard(object):
         lifeStr="Life: {0}".format(self.life)
         playerStr="Player: {0}".format(player+1)
         screen.draw.text(scoreStr, center=(self.scoreX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
-        screen.draw.text(lifeStr, center=(self.lifeX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
+        if self.life >0:
+            screen.draw.text(lifeStr, center=(self.lifeX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
         screen.draw.text(playerStr, center=(self.playerX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
 
     def update(self):
@@ -324,7 +324,7 @@ class Game(object):
     handles all objects in the game
     """
     def __init__(self,players,playerNb):
-        self.background=Background(self)
+        self.background=Background()
         self.spaceship=Spaceship(self)
         self.enemies=Enemies(self)
         self.bullets=Bullets(self)
