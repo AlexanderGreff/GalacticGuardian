@@ -2,6 +2,7 @@ import pgzero, pgzrun, pygame
 import math, sys, random
 from enum import Enum
 import random
+from enum import Enum
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -24,7 +25,14 @@ WIDTH = 720
 HEIGHT = 720
 TITLE = "Galactic Guardian"
 
+
+class Mode(Enum):
+    GameOver = 1
+    Play = 2
+
+mode = Mode.GameOver
 game=None
+
 
 # PLAYER_SPEED = 6
 # MAX_AI_SPEED = 6
@@ -46,12 +54,12 @@ class Background(object):
     """
     handles logic for scrolling background
     """
-    def __init__(self):
+    def __init__(self, scrollSpeed=5):
         """
         constructor
         """
         self.MAX_IMAGE_Y = 1044
-        self.PIXEL_SCROLL = 5
+        self.PIXEL_SCROLL = scrollSpeed
         self.dy1 = 0
         self.dy2 = -self.MAX_IMAGE_Y
 
@@ -255,6 +263,7 @@ class Enemies(Container):
                 isHit=True
         return isHit
 
+
 class Game(object):
     """
     handles all objects in the game
@@ -272,10 +281,6 @@ class Game(object):
         self.enemies.draw()
         self.bullets.draw()
 
-    def playMusic(self):
-        music.play("theme")
-        music.set_volume(0.3)
-
     def update(self):
         self.background.update()
         self.spaceship.update()
@@ -288,8 +293,36 @@ class Game(object):
         if self.count % 100 == 0:
             self.enemies.add(EnemyShip())
 
-game = Game()
+#game = Game()
+class GameOver(object):
+    """
+    handles all objects in the game
+    """
+    def __init__(self):
+        self.background=Background(0)
+        #self.count=0
 
+    def draw(self):
+        self.background.draw()
+        self.drawMenu()
+
+    def drawMenu(self):
+        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//6), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
+        screen.draw.text("GAME OVER" , center=(WIDTH//2, HEIGHT//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
+        screen.draw.text("press SPACE to start" , center=(WIDTH//2, (3*HEIGHT)//4), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+
+    def update(self):
+        self.controls()
+        self.background.update()
+        #self.count+=1
+        
+    def controls(self):
+        global mode, game
+        if keyboard.space:
+            mode = Mode.Play
+            game = Game() 
+
+gameOver = GameOver()
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
 
@@ -298,18 +331,26 @@ game = Game()
 
 #we do all of the necessary calcuations in here
 def update():
-    game.update()
+    if mode == Mode.Play:
+        game.update()
+    else:
+        gameOver.update()
+
 
 #here we redraw everything     
 def draw():
-    game.draw()
+    if mode == Mode.Play:
+        game.draw()
+    else:
+        gameOver.draw()
 
 # The mixer allows us to play sounds and music
 try:
     pygame.mixer.quit()
     pygame.mixer.init(44100, -16, 2, 1024)
 
-    game.playMusic()
+    music.play("theme")
+    music.set_volume(0.3)
 
 except:
     # If an error occurs (e.g. no sound device), just ignore it
