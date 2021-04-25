@@ -207,7 +207,8 @@ class Spaceship(Actor):
         sounds.spaceshipexplosion.play()
         self.isDead=True
         self.isDeadCount=game.count
-        game.gameOver()
+        game.scoreBoard.died()
+
 
     def draw(self):
         if not self.isDead:
@@ -271,13 +272,16 @@ class ScoreBoard(object):
     """
     def __init__(self, life=3):
         self.lineY= HEIGHT//20
-        self.scoreX = (5*WIDTH)//6
-        self.lifeX = (1*WIDTH)//4
+        self.scoreX = (9.75*WIDTH)//12
+        self.lifeX = (2*WIDTH)//4
         self.score=0
         self.life=life
 
     def drawMenu(self):
-        screen.draw.text(str(self.score) , center=(self.scoreX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=60)
+        scoreStr="Score: {0:04d}".format(self.score)
+        lifeStr="Life: {0}".format(self.life)
+        screen.draw.text(scoreStr, center=(self.scoreX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
+        screen.draw.text(lifeStr, center=(self.lifeX, self.lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
 
     def update(self):
         pass
@@ -285,10 +289,11 @@ class ScoreBoard(object):
     def draw(self):
         self.drawMenu()
 
-    def incScore(self):
-        self.score+=1
+    def incScore(self,value=1):
+        self.score+=value
 
     def died(self):
+        self.incScore(-1)
         if self.life > 1:
             self.life-=1
         else:
@@ -341,9 +346,9 @@ class GameOver(object):
         #self.count=0
 
     def drawMenu(self):
-        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//6), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
-        screen.draw.text("GAME OVER" , center=(WIDTH//2, HEIGHT//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
-        screen.draw.text("press SPACE to start" , center=(WIDTH//2, (3*HEIGHT)//4), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
+        screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
+        screen.draw.text("press SPACE to start" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
         game.scoreBoard.draw()
 
     def controls(self):
