@@ -81,6 +81,7 @@ class EnemyShip(Actor):
         self.count=0
         self.movex=0
         self.movey=0
+        self.minDistance = self.width // 2
 
     def controls(self):
         if (self.count % 10 == 0):
@@ -91,7 +92,8 @@ class EnemyShip(Actor):
         return self.movex, self.movey
 
     def isHit(self, item):
-        return self.distance_to(item) < item.minDistance
+        minDist = max(item.minDistance, self.minDistance)
+        return self.distance_to(item) < minDist
 
     def destroyed(self):
         game.enemies.remove(self)
@@ -117,7 +119,8 @@ class Bullet(Actor):
         self.x = x
         self.y = y
         self.speed=5
-        self.minDistance = 15
+        self.minDistance = self.width // 2
+        print(self.minDistance)
 
     def controls(self):
         movex = 0
@@ -125,7 +128,8 @@ class Bullet(Actor):
         return movex,movey
     
     def update(self):
-        game.enemies.checkIsHit(self)
+        if game.enemies.checkIsHit(self):
+            game.bullets.remove(self)
         movex,movey=self.controls()
         newx=self.x+movex
         newy=self.y-movey
@@ -150,7 +154,7 @@ class Spaceship(Actor):
         self.count=0
         self.isDead=False
         self.isDeadCount=0
-        self.minDistance = 50
+        self.minDistance = self.width // 2
 
     def controls(self):
         movex = 0
