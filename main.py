@@ -24,10 +24,6 @@ WIDTH = 720
 HEIGHT = 720
 TITLE = "Galactic Guardian"
 
-#defines the center of the screen
-HALF_WIDTH = WIDTH // 2
-HALF_HEIGHT = HEIGHT // 2
-
 game=None
 
 # PLAYER_SPEED = 6
@@ -147,7 +143,7 @@ class Spaceship(Actor):
     def __init__(self):
         super().__init__("spaceshipsmall")
         shipheight=self.height
-        self.x = HALF_WIDTH
+        self.x = WIDTH //2
         self.y = HEIGHT - shipheight
         self.shipspeed=5
         self.halfheight=self.height/2
@@ -185,7 +181,7 @@ class Spaceship(Actor):
             self.y=newy
         if self.isDead and (game.count - self.isDeadCount) % 100 == 0:
             self.isDead = False
-        if game.enemies.checkIsHit(self):
+        if not self.isDead and game.enemies.checkIsHit(self):
             self.destroyed()
 
     def fire(self):
@@ -285,7 +281,6 @@ class Game(object):
         if self.count % 100 == 0:
             self.enemies.add(EnemyShip())
 
-
 game = Game()
 
 #Pygame main loop
@@ -312,10 +307,6 @@ try:
 except:
     # If an error occurs (e.g. no sound device), just ignore it
     pass
-
-
-# Create a new Game object, without any players
-# game = Game()
 
 # Tell Pygame Zero to start - this line is only required when running the game from an IDE such as IDLE or PyCharm
 pgzrun.go()
