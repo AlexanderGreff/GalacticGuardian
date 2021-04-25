@@ -167,6 +167,10 @@ spaceship=Spaceship()
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
 
+music.play("theme")
+
+# if player.status == 1: screen.draw.text("GAME OVER" , center=(300, 434), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=40)
+
 #we do all of the necessary calcuations in here
 def update():
     scrollingbackground.update()
