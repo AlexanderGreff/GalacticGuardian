@@ -27,6 +27,8 @@ TITLE = "Galactic Guardian"
 HALF_WIDTH = WIDTH // 2
 HALF_HEIGHT = HEIGHT // 2
 
+game=None
+
 # PLAYER_SPEED = 6
 # MAX_AI_SPEED = 6
 
@@ -41,7 +43,6 @@ HALF_HEIGHT = HEIGHT // 2
 def sign(x):
     # Returns -1 or 1 depending on whether number is positive or negative
     return -1 if x < 0 else 1
-
 
 
 class Background(object):
@@ -78,7 +79,7 @@ class EnemyShip(Actor):
         super().__init__("enemyship1")
         shipheight=self.height
         self.x = HALF_WIDTH
-        self.y =  HALF_HEIGHT
+        self.y =  30
         self.shipspeed=5
         self.halfheight=self.height/2
 
@@ -100,27 +101,27 @@ class Bullet(Actor):
     """
     handles logic for scrolling background
     """
-    def __init__(self):
+    def __init__(self,x,y):
         super().__init__("bullet15")
-        shipheight=self.height
-        self.x = HALF_WIDTH
-        self.y =  HALF_HEIGHT+70
-        self.shipspeed=5
-        self.halfheight=self.height/2
+        self.x = x
+        self.y = y
+        self.speed=5
 
     def controls(self):
         movex = 0
-        movey = 0
+        movey = self.speed
         return movex,movey
     
     def update(self):
         movex,movey=self.controls()
         newx=self.x+movex
-        newy=self.y+movey
+        newy=self.y-movey
         if newx>=0 and newx<=WIDTH:         
             self.x=newx
-        if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
+        if newy>=(0) and newy<=(HEIGHT):
             self.y=newy
+        else:
+            game.bullets.remove(self)
 
 class Spaceship(Actor):
     """
@@ -162,14 +163,25 @@ class Container(object):
     handles all collections of objects in the game
     """
     def __init__(self):
-        self.all=[]
+        self.all={}
+        self.dead=[]
+
+    def add(self, item):
+        self.all[id(item)]=item
+
+    def remove(self, item):
+        self.dead.append(item)
 
     def draw(self):
-        for element in self.all:
+        for element in self.all.values():
             element.draw()    
 
     def update(self):
-        for element in self.all:
+        for item in self.dead:
+            del self.all[id(item)]
+        if len(self.dead)>0:
+            self.dead.clear()
+        for element in self.all.values():
             element.update()
 
 class Bullets(Container):
@@ -178,7 +190,7 @@ class Bullets(Container):
     """
     def __init__(self):
         super().__init__()
-        pass
+        self.add(Bullet(WIDTH/2,HEIGHT))
 
 class Enemies(Container):
     """
@@ -186,7 +198,7 @@ class Enemies(Container):
     """
     def __init__(self):
         super().__init__()
-        pass
+        self.add(EnemyShip())
 
 class Game(object):
     """
