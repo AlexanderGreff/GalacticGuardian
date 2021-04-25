@@ -78,17 +78,15 @@ class EnemyShip(Actor):
         self.y =  20
         self.shipspeed=5
         self.halfheight=self.height/2
-        self.count=0
         self.movex=0
         self.movey=0
         self.minDistance = self.width // 2
 
     def controls(self):
-        if (self.count % 10 == 0):
+        if (game.count % 10 == 0):
             xmin = random.randrange(2, 10)
             self.movex = random.randrange(-xmin, xmin)
             self.movey = random.randrange(0, 3)
-        self.count+=1
         return self.movex, self.movey
 
     def isHit(self, item):
@@ -105,7 +103,7 @@ class EnemyShip(Actor):
         newy=self.y+movey
         if newx>=0 and newx<=WIDTH:         
             self.x=newx
-        if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
+        if newy >= 0 and newy<=(HEIGHT-self.halfheight):
             self.y=newy
         else:
             game.enemies.remove(self)
@@ -151,7 +149,7 @@ class Spaceship(Actor):
         self.y = HEIGHT - shipheight
         self.shipspeed=5
         self.halfheight=self.height/2
-        self.count=0
+        self.countFire=0
         self.isDead=False
         self.isDeadCount=0
         self.minDistance = self.width // 2
@@ -165,9 +163,9 @@ class Spaceship(Actor):
             movey = -self.shipspeed
 
         if keyboard.space:
-            if self.count % 10 == 0:
+            if self.countFire % 10 == 0:
                 self.fire()
-            self.count+=1
+            self.countFire+=1
 
         if keyboard.a or keyboard.left:
             movex = -self.shipspeed
