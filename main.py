@@ -54,7 +54,7 @@ class Background(object):
     """
     handles logic for scrolling background
     """
-    def __init__(self, scrollSpeed=5):
+    def __init__(self, game, scrollSpeed=5):
         """
         constructor
         """
@@ -62,6 +62,7 @@ class Background(object):
         self.PIXEL_SCROLL = scrollSpeed
         self.dy1 = 0
         self.dy2 = -self.MAX_IMAGE_Y
+        self.game = game
 
     def draw(self):
         screen.blit("bg1", (0, self.dy1))
@@ -80,7 +81,7 @@ class EnemyShip(Actor):
     """
     handles logic for scrolling background
     """
-    def __init__(self):
+    def __init__(self,game):
         if random.randrange(1,3) == 1:
             super().__init__("enemyship1")  
         else:
@@ -92,9 +93,10 @@ class EnemyShip(Actor):
         self.movex=0
         self.movey=0
         self.minDistance = self.width // 2
+        self.game = game
 
     def controls(self):
-        if (game.count % 10 == 0):
+        if (self.game.count % 10 == 0):
             xmin = random.randrange(2, 10)
             self.movex = random.randrange(-xmin, xmin)
             self.movey = random.randrange(0, 3)
@@ -105,8 +107,8 @@ class EnemyShip(Actor):
         return self.distance_to(item) < minDist
 
     def destroyed(self):
-        game.scoreBoard.incScore()
-        game.enemies.remove(self)
+        self.game.scoreBoard.incScore()
+        self.game.enemies.remove(self)
         sounds.explosion.play()
 
     def update(self):
@@ -118,18 +120,19 @@ class EnemyShip(Actor):
         if newy >= 0 and newy<=(HEIGHT-self.halfheight):
             self.y=newy
         else:
-            game.enemies.remove(self)
+            self.game.enemies.remove(self)
 
 class Bullet(Actor):
     """
     handles logic for scrolling background
     """
-    def __init__(self,x,y):
+    def __init__(self,game,x,y):
         super().__init__("bullet15")
         self.x = x
         self.y = y
         self.speed=5
         self.minDistance = self.width // 2
+        self.game = game
         #print(self.minDistance)
 
     def controls(self):
@@ -138,8 +141,8 @@ class Bullet(Actor):
         return movex,movey
     
     def update(self):
-        if game.enemies.checkIsHit(self):
-            game.bullets.remove(self)
+        if self.game.enemies.checkIsHit(self):
+            self.game.bullets.remove(self)
         movex,movey=self.controls()
         newx=self.x+movex
         newy=self.y-movey
@@ -148,13 +151,13 @@ class Bullet(Actor):
         if newy>=(0) and newy<=(HEIGHT):
             self.y=newy
         else:
-            game.bullets.remove(self)
+            self.game.bullets.remove(self)
 
 class Spaceship(Actor):
     """
     handles logic for scrolling background
     """
-    def __init__(self):
+    def __init__(self,game):
         super().__init__("spaceshipsmall")
         shipheight=self.height
         self.x = WIDTH //2
@@ -165,6 +168,7 @@ class Spaceship(Actor):
         self.isDead=False
         self.isDeadCount=0
         self.minDistance = self.width // 2
+        self.game = game
 
     def controls(self):
         movex = 0
@@ -195,20 +199,20 @@ class Spaceship(Actor):
             self.x=newx
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
-        if self.isDead and (game.count - self.isDeadCount) % 100 == 0:
+        if self.isDead and (self.game.count - self.isDeadCount) % 100 == 0:
             self.isDead = False
-        if not self.isDead and game.enemies.checkIsHit(self):
+        if not self.isDead and self.game.enemies.checkIsHit(self):
             self.destroyed()
 
     def fire(self):
-        game.bullets.add(Bullet(self.x, self.y-self.halfheight))
+        self.game.bullets.add(Bullet(self.game,self.x, self.y-self.halfheight))
         sounds.laser0.play()
 
     def destroyed(self):
         sounds.spaceshipexplosion.play()
         self.isDead=True
-        self.isDeadCount=game.count
-        game.scoreBoard.died()
+        self.isDeadCount=self.game.count
+        self.game.scoreBoard.died()
 
 
     def draw(self):
@@ -219,9 +223,10 @@ class Container(object):
     """
     handles all collections of objects in the game
     """
-    def __init__(self):
+    def __init__(self,game):
         self.all={}
         self.dead=[]
+        self.game = game
 
     def add(self, item):
         self.all[id(item)]=item
@@ -248,19 +253,19 @@ class Bullets(Container):
     """
     handles all bullets in the game
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self,game):
+        super().__init__(game)
 
 class Enemies(Container):
     """
     handles all enemies in the game
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self,game):
+        super().__init__(game)
 
     def checkIsHit(self, item):
         isHit=False
-        for enemy in game.enemies.allItems():
+        for enemy in self.game.enemies.allItems():
             #print(self.distance_to(enemy))
             if enemy.isHit(item):
                 enemy.destroyed()
@@ -271,12 +276,13 @@ class ScoreBoard(object):
     """
     handles all objects in the game
     """
-    def __init__(self, life=3):
+    def __init__(self, game, life=3):
         self.lineY= HEIGHT//20
         self.scoreX = (9.75*WIDTH)//12
         self.lifeX = (2*WIDTH)//4
         self.score=0
         self.life=life
+        self.game = game
 
     def drawMenu(self):
         scoreStr="Score: {0:04d}".format(self.score)
@@ -299,7 +305,7 @@ class ScoreBoard(object):
             self.life-=1
         else:
             self.life=0
-            game.gameOver()
+            self.game.gameOver()
 
 
 class Game(object):
@@ -307,11 +313,11 @@ class Game(object):
     handles all objects in the game
     """
     def __init__(self):
-        self.background=Background()
-        self.spaceship=Spaceship()
-        self.enemies=Enemies()
-        self.bullets=Bullets()
-        self.scoreBoard=ScoreBoard()
+        self.background=Background(self)
+        self.spaceship=Spaceship(self)
+        self.enemies=Enemies(self)
+        self.bullets=Bullets(self)
+        self.scoreBoard=ScoreBoard(self)
         self.count=0
 
     def update(self):
@@ -332,7 +338,7 @@ class Game(object):
 
     def addEnemies(self):
         if self.count % 100 == 0:
-            self.enemies.add(EnemyShip())
+            self.enemies.add(EnemyShip(self))
 
     def gameOver(self):
         global mode
