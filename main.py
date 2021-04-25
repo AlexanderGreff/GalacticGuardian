@@ -1,6 +1,7 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
 from enum import Enum
+import random
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -77,17 +78,29 @@ class EnemyShip(Actor):
     """
     def __init__(self):
         super().__init__("enemyship1")
-        shipheight=self.height
-        self.x = HALF_WIDTH
-        self.y =  30
+        self.x = random.randrange(0, WIDTH)
+        self.y =  20
         self.shipspeed=5
         self.halfheight=self.height/2
+        self.count=0
+        self.movex=0
+        self.movey=0
 
     def controls(self):
-        movex = 0
-        movey = 0
-        return movex,movey
-    
+        if (self.count % 10 == 0):
+            xmin = random.randrange(2, 10)
+            self.movex = random.randrange(-xmin, xmin)
+            self.movey = random.randrange(0, 3)
+        self.count+=1
+        return self.movex, self.movey
+
+    def isHit(self, item):
+        return self.distance_to(item) < item.minDistance
+
+    def destroyed(self):
+        game.enemies.remove(self)
+        sounds.explosion.play()
+
     def update(self):
         movex,movey=self.controls()
         newx=self.x+movex
@@ -96,6 +109,8 @@ class EnemyShip(Actor):
             self.x=newx
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
+        else:
+            game.enemies.remove(self)
 
 class Bullet(Actor):
     """
@@ -106,6 +121,7 @@ class Bullet(Actor):
         self.x = x
         self.y = y
         self.speed=5
+        self.minDistance = 15
 
     def controls(self):
         movex = 0
@@ -113,6 +129,7 @@ class Bullet(Actor):
         return movex,movey
     
     def update(self):
+        game.enemies.checkIsHit(self)
         movex,movey=self.controls()
         newx=self.x+movex
         newy=self.y-movey
@@ -134,6 +151,10 @@ class Spaceship(Actor):
         self.y = HEIGHT - shipheight
         self.shipspeed=5
         self.halfheight=self.height/2
+        self.count=0
+        self.isDead=False
+        self.isDeadCount=0
+        self.minDistance = 50
 
     def controls(self):
         movex = 0
@@ -142,7 +163,12 @@ class Spaceship(Actor):
             movey = self.shipspeed
         elif keyboard.w or keyboard.up:
             movey = -self.shipspeed
-        
+
+        if keyboard.space:
+            if self.count % 10 == 0:
+                self.fire()
+            self.count+=1
+
         if keyboard.a or keyboard.left:
             movex = -self.shipspeed
         elif keyboard.d or keyboard.right:
@@ -157,6 +183,22 @@ class Spaceship(Actor):
             self.x=newx
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
+        if self.isDead and (game.count - self.isDeadCount) % 100 == 0:
+            self.isDead = False
+        if game.enemies.checkIsHit(self):
+            self.destroyed()
+
+    def fire(self):
+        game.bullets.add(Bullet(self.x, self.y-self.halfheight))
+
+    def destroyed(self):
+        sounds.spaceshipexplosion.play()
+        self.isDead=True
+        self.isDeadCount=game.count
+
+    def draw(self):
+        if not self.isDead:
+            super().draw()  
 
 class Container(object):
     """
@@ -171,6 +213,9 @@ class Container(object):
 
     def remove(self, item):
         self.dead.append(item)
+
+    def allItems(self):
+        return self.all.values()
 
     def draw(self):
         for element in self.all.values():
@@ -190,7 +235,6 @@ class Bullets(Container):
     """
     def __init__(self):
         super().__init__()
-        self.add(Bullet(WIDTH/2,HEIGHT))
 
 class Enemies(Container):
     """
@@ -198,7 +242,15 @@ class Enemies(Container):
     """
     def __init__(self):
         super().__init__()
-        self.add(EnemyShip())
+
+    def checkIsHit(self, item):
+        isHit=False
+        for enemy in game.enemies.allItems():
+            #print(self.distance_to(enemy))
+            if enemy.isHit(item):
+                enemy.destroyed()
+                isHit=True
+        return isHit
 
 class Game(object):
     """
@@ -209,6 +261,7 @@ class Game(object):
         self.spaceship=Spaceship()
         self.enemies=Enemies()
         self.bullets=Bullets()
+        self.count=0
 
     def draw(self):
         self.background.draw()
@@ -225,7 +278,13 @@ class Game(object):
         self.spaceship.update()
         self.enemies.update()
         self.bullets.update()
+        self.addEnemies()
+        self.count+=1
         
+    def addEnemies(self):
+        if self.count % 100 == 0:
+            self.enemies.add(EnemyShip())
+
 
 game = Game()
 
