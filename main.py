@@ -70,8 +70,6 @@ class Background(object):
         if self.dy2 >= self.MAX_IMAGE_Y:
             self.dy2 = -self.MAX_IMAGE_Y
 
-
-scrollingbackground=Background()
 class EnemyShip(Actor):
     """
     handles logic for scrolling background
@@ -97,8 +95,6 @@ class EnemyShip(Actor):
             self.x=newx
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
-
-enemyShip = EnemyShip()
 
 class Bullet(Actor):
     """
@@ -126,7 +122,6 @@ class Bullet(Actor):
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
 
-bullet = Bullet()
 class Spaceship(Actor):
     """
     handles logic for scrolling background
@@ -162,36 +157,87 @@ class Spaceship(Actor):
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
 
-spaceship=Spaceship()
+class Container(object):
+    """
+    handles all collections of objects in the game
+    """
+    def __init__(self):
+        self.all=[]
+
+    def draw(self):
+        for element in self.all:
+            element.draw()    
+
+    def update(self):
+        for element in self.all:
+            element.update()
+
+class Bullets(Container):
+    """
+    handles all bullets in the game
+    """
+    def __init__(self):
+        super().__init__()
+        pass
+
+class Enemies(Container):
+    """
+    handles all enemies in the game
+    """
+    def __init__(self):
+        super().__init__()
+        pass
+
+class Game(object):
+    """
+    handles all objects in the game
+    """
+    def __init__(self):
+        self.background=Background()
+        self.spaceship=Spaceship()
+        self.enemies=Enemies()
+        self.bullets=Bullets()
+
+    def draw(self):
+        self.background.draw()
+        self.spaceship.draw()
+        self.enemies.draw()
+        self.bullets.draw()
+
+    def playMusic(self):
+        music.play("theme")
+        music.set_volume(0.3)
+
+    def update(self):
+        self.background.update()
+        self.spaceship.update()
+        self.enemies.update()
+        self.bullets.update()
+        
+
+game = Game()
 
 #Pygame main loop
 # Pygame Zero calls the update and draw functions each frame
 
-music.play("theme")
 
 # if player.status == 1: screen.draw.text("GAME OVER" , center=(300, 434), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=40)
 
 #we do all of the necessary calcuations in here
 def update():
-    scrollingbackground.update()
-    spaceship.update()
-    enemyShip.update()
-    bullet.update()
+    game.update()
 
 #here we redraw everything     
 def draw():
-    scrollingbackground.draw()
-    spaceship.draw()
-    enemyShip.draw()    
-    bullet.draw()
+    game.draw()
 
 # The mixer allows us to play sounds and music
 try:
     pygame.mixer.quit()
     pygame.mixer.init(44100, -16, 2, 1024)
 
-    music.play("theme")
-    music.set_volume(0.3)
+    game.playMusic()
+
 except:
     # If an error occurs (e.g. no sound device), just ignore it
     pass
