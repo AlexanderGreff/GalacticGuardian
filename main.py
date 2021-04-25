@@ -119,6 +119,8 @@ class EnemyShip(Actor):
         if newy >= 0 and newy<=(HEIGHT-self.halfheight):
             self.y=newy
         else:
+            sounds.enemy_escaped.play()
+            self.game.scoreBoard.incScore(-1)
             self.game.enemies.remove(self)
 
 class Bullet(Actor):
@@ -188,6 +190,8 @@ class Spaceship(Actor):
                 movex = -self.shipspeed
             elif keyboard.d or keyboard.right:
                 movex = self.shipspeed
+            if keyboard.q:
+                self.game.quit()
         return movex,movey
     
     def update(self):
@@ -309,6 +313,8 @@ class ScoreBoard(object):
 
     def incScore(self,value=1):
         self.score+=value
+        if self.score < 0:
+            self.score=0
 
     def died(self):
         self.incScore(-1)
@@ -360,6 +366,11 @@ class Game(object):
     def died(self):
         self.scoreBoard.died()
         self.players.died()
+
+    def quit(self):
+         pygame.display.quit()
+         pygame.quit()
+         sys.exit()
         
 class GameOver(object):
     """
@@ -404,28 +415,52 @@ class Players(object):
         self.players=[]
         for i in range(numberPlayers):
             self.players.append(Game(self,i))
-        
-        #self.count=0
+        self.countPlayerChange=0
+
     def getPlayer(self):
         return self.players[self.currentPlayer]
 
     def update(self):
-        self.getPlayer().update()
+        if not self.playerChange():
+            self.getPlayer().update()   
 
     def drawBoard(self):
         for i in range(self.numberPlayers):
             self.players[i].scoreBoard.drawBoard(i,False)
 
     def draw(self):
-       self.getPlayer().draw()
+        if not self.playerChange():
+            self.getPlayer().draw()
+        else:
+            self.drawSplash()
+
+    def drawSplash(self):
+        screen.draw.filled_rect(Rect((0, 0), (WIDTH, HEIGHT)), (0, 0, 0))
+        playerStr="Player {0}".format(self.currentPlayer+1)
+        screen.draw.text(playerStr, center=(WIDTH//2,HEIGHT//2), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=120)
+        screen.draw.text("Press SPACE to skip" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(255,0,0) , fontsize=40)
+        if keyboard.space: # done changing player
+            self.countPlayerChange=0
 
     def nextPlayer(self):
+        currentPlayer = self.currentPlayer
         self.currentPlayer+=1
         if self.currentPlayer == self.numberPlayers:
             self.currentPlayer=0
+        if currentPlayer != self.currentPlayer:
+            self.countPlayerChange=1
     
     def died(self):
         self.nextPlayer()
+
+    def playerChange(self):
+        changing = self.countPlayerChange > 0 and self.countPlayerChange < 500
+        if changing:
+            self.countPlayerChange+=1
+        else:
+            self.countPlayerChange=0
+        return changing
+
 
     def gameOver(self):
         global mode
