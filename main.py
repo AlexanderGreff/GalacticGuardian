@@ -64,7 +64,7 @@ class EnemyShip(Actor):
     handles logic for an enemy ship
     """
     def __init__(self,game):
-        enemyShips=["enemyblue2","enemyship1"]
+        enemyShips=["enemyblue2","enemyship5","enemyship4","enemyship3","enemyship1"]
         randval = random.randrange(1, len(enemyShips) + 1)
         super().__init__(enemyShips[randval-1])  
         self.nbPoints = randval * 5
@@ -264,7 +264,7 @@ class ScoreBoard(object):
     def __init__(self, game, life=3):
         self.lineY1= (1*HEIGHT)//20
         self.lineY2= (2*HEIGHT)//20
-        self.scoreX = (9.75*WIDTH)//12
+        self.scoreX = (9.65*WIDTH)//12
         self.lifeX = (2*WIDTH)//4
         self.playerX = (1*WIDTH)//8
         self.score=0
@@ -279,7 +279,7 @@ class ScoreBoard(object):
         else:
             lineY=self.lineY2
         
-        scoreStr="Score: {0:04d}".format(self.score)
+        scoreStr="Score: {0:05d}".format(self.score)
         lifeStr="Life: {0}".format(self.life)
         playerStr="Player: {0}".format(player+1)
         screen.draw.text(scoreStr, center=(self.scoreX,lineY), owidth=0.5, ocolor=(0,0,0), color=(255,255,204) , fontsize=60)
