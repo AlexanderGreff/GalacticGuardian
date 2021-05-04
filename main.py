@@ -159,9 +159,10 @@ class Spaceship(Actor):
         if not self.isDead:
             if keyboard.s or keyboard.down:
                 movey = self.shipspeed
+                sounds.engineshorter.play()
             elif keyboard.w or keyboard.up:
                 movey = -self.shipspeed
-                sounds.engineshort.play()
+                sounds.engineshorter.play()
 
             if keyboard.space:
                 if self.countFire % 10 == 0:
@@ -170,8 +171,10 @@ class Spaceship(Actor):
 
             if keyboard.a or keyboard.left:
                 movex = -self.shipspeed
+                # sounds.engineshorter.play()
             elif keyboard.d or keyboard.right:
                 movex = self.shipspeed
+                # sounds.engineshorter.play()
             if keyboard.q:
                 self.game.quit()
         return movex,movey
@@ -366,6 +369,7 @@ class GameOver(object):
         screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
         screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
         screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        screen.draw.text("A Game Made By Alexander Greff" , center=(WIDTH//2, (7*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(140,112,219) , fontsize=40)
         screen.draw.text(" q to quit" , center=(WIDTH//2, (7.35*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
         if players is not None:
             players.drawBoard()
