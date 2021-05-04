@@ -74,7 +74,6 @@ class EnemyShip(Actor):
         self.halfheight=self.height/2
         self.movex=0
         self.movey=0
-        self.minDistance = self.width // 2
         self.game = game
 
     def controls(self):
@@ -85,8 +84,7 @@ class EnemyShip(Actor):
         return self.movex, self.movey
 
     def isHit(self, item):
-        minDist = max(item.minDistance, self.minDistance)
-        return self.distance_to(item) < minDist
+        return self.colliderect(item)
 
     def destroyed(self):
         self.game.scoreBoard.incScore()
@@ -115,7 +113,6 @@ class Bullet(Actor):
         self.x = x
         self.y = y
         self.speed=5
-        self.minDistance = self.width // 2
         self.game = game
 
     def controls(self):
@@ -150,7 +147,6 @@ class Spaceship(Actor):
         self.countFire=0
         self.isDead=False
         self.isDeadCount=0
-        self.minDistance = self.width // 2
         self.game = game
 
     def controls(self):
