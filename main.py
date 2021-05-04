@@ -64,10 +64,10 @@ class EnemyShip(Actor):
     handles logic for an enemy ship
     """
     def __init__(self,game):
-        if random.randrange(1,3) == 1:
-            super().__init__("enemyship1")  
-        else:
-            super().__init__("enemyblue2")  
+        enemyShips=["enemyblue2","enemyship1"]
+        randval = random.randrange(1, len(enemyShips) + 1)
+        super().__init__(enemyShips[randval-1])  
+        self.nbPoints = randval * 5
         self.x = random.randrange(0, WIDTH)
         self.y =  20
         self.shipspeed=5
@@ -86,8 +86,9 @@ class EnemyShip(Actor):
     def isHit(self, item):
         return self.colliderect(item)
 
-    def destroyed(self):
-        self.game.scoreBoard.incScore()
+    def destroyed(self,incScore): 
+        if incScore:
+            self.game.scoreBoard.incScore(self.nbPoints)
         self.game.enemies.remove(self)
         sounds.explosion.play()
 
@@ -101,7 +102,7 @@ class EnemyShip(Actor):
             self.y=newy
         else:
             sounds.enemy_escaped.play()
-            self.game.scoreBoard.incScore(-1)
+            self.game.scoreBoard.incScore(-self.nbPoints)
             self.game.enemies.remove(self)
 
 class Bullet(Actor):
@@ -185,7 +186,7 @@ class Spaceship(Actor):
             self.y=newy
         if self.isDead and (self.game.count - self.isDeadCount) % 100 == 0:
             self.isDead = False
-        if not self.isDead and self.game.enemies.checkIsHit(self):
+        if not self.isDead and self.game.enemies.checkIsHit(self,incScore=False):
             self.destroyed()
 
     def fire(self):
@@ -247,12 +248,12 @@ class Enemies(Container):
     def __init__(self,game):
         super().__init__(game)
 
-    def checkIsHit(self, item):
+    def checkIsHit(self, item, incScore=True):
         isHit=False
         for enemy in self.game.enemies.allItems():
             #print(self.distance_to(enemy))
             if enemy.isHit(item):
-                enemy.destroyed()
+                enemy.destroyed(incScore)
                 isHit=True
         return isHit
 
@@ -298,7 +299,6 @@ class ScoreBoard(object):
             self.score=0
 
     def died(self):
-        self.incScore(-1)
         if self.life > 1:
             self.life-=1
         else:
