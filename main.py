@@ -63,11 +63,13 @@ class EnemyShip(Actor):
     """
     handles logic for an enemy ship
     """
+    AllShips=["enemyblue2","enemyship5","enemyship4","enemyship3","enemyship1"]
+    NbPointFactor=5
+
     def __init__(self,game):
-        enemyShips=["enemyblue2","enemyship5","enemyship4","enemyship3","enemyship1"]
-        randval = random.randrange(1, len(enemyShips) + 1)
-        super().__init__(enemyShips[randval-1])  
-        self.nbPoints = randval * 5
+        randval = random.randrange(1, len(EnemyShip.AllShips) + 1)
+        super().__init__(EnemyShip.AllShips[randval-1])  
+        self.shipKind = randval
         self.x = random.randrange(0, WIDTH)
         self.y =  20
         self.shipspeed=5
@@ -76,11 +78,27 @@ class EnemyShip(Actor):
         self.movey=0
         self.game = game
 
+    @staticmethod
+    def drawAllShips(y):
+        sideSpace=100
+        spaceForShips=WIDTH-2*sideSpace
+        numberShips=len(EnemyShip.AllShips)
+        for i in range(numberShips):
+            x=sideSpace-30+(spaceForShips/(numberShips-1))*i
+            screen.blit(EnemyShip.AllShips[i], (x,y))
+            nbPoints=(i+1)*EnemyShip.NbPointFactor
+            screen.draw.text(str(nbPoints) , center=(x+30, y+100), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+
+
+
+    def nbPoints(self):
+        return self.shipKind * EnemyShip.NbPointFactor
+
     def controls(self):
         if (self.game.count % 10 == 0):
-            xmin = random.randrange(2, 10)
+            xmin = random.randrange(2, 9 + self.shipKind)
             self.movex = random.randrange(-xmin, xmin)
-            self.movey = random.randrange(0, 3)
+            self.movey = random.randrange(0,2 + self.shipKind)
         return self.movex, self.movey
 
     def isHit(self, item):
@@ -88,7 +106,7 @@ class EnemyShip(Actor):
 
     def destroyed(self,incScore): 
         if incScore:
-            self.game.scoreBoard.incScore(self.nbPoints)
+            self.game.scoreBoard.incScore(self.nbPoints())
         self.game.enemies.remove(self)
         sounds.explosion.play()
 
@@ -102,7 +120,7 @@ class EnemyShip(Actor):
             self.y=newy
         else:
             sounds.enemy_escaped.play()
-            self.game.scoreBoard.incScore(-self.nbPoints)
+            self.game.scoreBoard.incScore(-self.nbPoints())
             self.game.enemies.remove(self)
 
 class Bullet(Actor):
@@ -362,7 +380,9 @@ class GameOver(object):
         self.background=Background(0)
 
     def drawMenu(self):
-        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
+        EnemyShip.drawAllShips((1*HEIGHT)//8+20)
+        screen.blit("spaceshipsmall", (WIDTH//2-30, HEIGHT//2.75))
+        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//16), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
         screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
         screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
         screen.draw.text("A Game Made By Alexander Greff" , center=(WIDTH//2, (7*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(140,112,219) , fontsize=40)
