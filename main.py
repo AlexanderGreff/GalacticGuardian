@@ -377,7 +377,7 @@ class GameOver(object):
     handles Game Over state
     """
     def __init__(self):
-        self.background=Background(0)
+        self.background=Background(3)
 
     def drawMenu(self):
         EnemyShip.drawAllShips((1*HEIGHT)//8+20)
