@@ -192,9 +192,13 @@ class Spaceship(Actor):
                 # sounds.engineshorter.play()
             if keyboard.q:
                 self.game.quit()
+            if not self.isDead and keyboard.k:
+                self.destroyed()
         return movex,movey
     
     def update(self):
+        if self.isDead and (self.game.count - self.isDeadCount) % 100 == 0:
+            self.isDead = False
         movex,movey=self.controls()
         newx=self.x+movex
         newy=self.y+movey
@@ -202,8 +206,6 @@ class Spaceship(Actor):
             self.x=newx
         if newy>=(self.halfheight) and newy<=(HEIGHT-self.halfheight):
             self.y=newy
-        if self.isDead and (self.game.count - self.isDeadCount) % 100 == 0:
-            self.isDead = False
         if not self.isDead and self.game.enemies.checkIsHit(self,incScore=False):
             self.destroyed()
 
