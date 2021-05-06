@@ -380,13 +380,13 @@ class GameOver(object):
         self.background=Background(3)
 
     def drawMenu(self):
-        EnemyShip.drawAllShips((1*HEIGHT)//8+20)
-        screen.blit("spaceshipsmall", (WIDTH//2-30, HEIGHT//2.75))
-        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//16), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
-        screen.draw.text("GAME OVER" , center=(WIDTH//2, (1.15*HEIGHT)//2), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=70)
-        screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
-        screen.draw.text("A Game Made By Alexander Greff" , center=(WIDTH//2, (7*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(140,112,219) , fontsize=40)
-        screen.draw.text(" q to quit" , center=(WIDTH//2, (7.35*HEIGHT)//8), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        screen.draw.text(TITLE , center=(WIDTH//2, HEIGHT//4), owidth=0.5, ocolor=(0,0,0), color=(255,255,0) , fontsize=100)
+        EnemyShip.drawAllShips((1.2*HEIGHT)//4+20)
+        screen.blit("spaceshipsmall", (WIDTH//2-30, HEIGHT//1.9))
+        screen.draw.text("GAME OVER" , center=(WIDTH//2, (2.15*HEIGHT)//3), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=90)
+        screen.draw.text("A Game Made By Alexander Greff" , center=(WIDTH//2, (7.2*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(140,112,219) , fontsize=40)
+        screen.draw.text("Press 1 or 2 for number of players" , center=(WIDTH//2, (7.9*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
+        screen.draw.text(" q to quit" , center=(WIDTH//2, (8.3*HEIGHT)//9), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=40)
         if players is not None:
             players.drawBoard()
 
