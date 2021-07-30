@@ -6,6 +6,7 @@ Install python 3.8 and run the following to install pygame zero:
 pip install -r requirements.txt
 
 Video de demos de mon jeu Galactic Guardian sur youtube.com
+
 https://www.youtube.com/watch?v=_2U0NIST4U4 
 avec 1 player 
 
